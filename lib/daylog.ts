@@ -3,18 +3,27 @@ import type { DayLog } from "@/lib/types";
 const KEY_TODAY = "jawreset_today";
 const KEY_ARCHIVE = "jawreset_archive";
 
-// Devuelve el día "YYYY-MM-DD" pero en zona horaria Chicago
+// Devuelve el día "YYYY-MM-DD" en zona horaria Chicago,
+// pero el "día" empieza a las 04:00 AM (Chicago).
 export function getTodayKeyChicago() {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Chicago",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  // 1) Tomamos "ahora" pero convertido a hora Chicago
+  const now = new Date();
+  const chicagoNow = new Date(
+    now.toLocaleString("en-US", { timeZone: "America/Chicago" })
+  );
 
-  return formatter.format(new Date()); // ej: "2025-12-31"
+  // 2) Si antes de las 4 AM, contamos como "día anterior"
+  if (chicagoNow.getHours() < 4) {
+    chicagoNow.setDate(chicagoNow.getDate() - 1);
+  }
+
+  // 3) Formato YYYY-MM-DD
+  const year = chicagoNow.getFullYear();
+  const month = String(chicagoNow.getMonth() + 1).padStart(2, "0");
+  const day = String(chicagoNow.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
-
 /* =========================
    Storage (localStorage)
    ========================= */
