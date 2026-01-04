@@ -269,8 +269,16 @@ export default function FocusPage() {
         <div className="flex-1 flex flex-col justify-center">
           <h1 className="text-3xl font-semibold">{nextTask.title}</h1>
 
+          {nextTask.description && (
+            <p className="mt-3 text-sm text-[#9AA7B8]"><strong>🧠 Trabaja: </strong>{nextTask.description}</p>
+          )}
+
           {nextTask.tip && (
-            <p className="mt-3 text-sm text-[#9AA7B8]">{nextTask.tip}</p>
+            <p className="mt-3 text-sm text-[#9AA7B8]"><strong>▶️ Instrucciones: </strong>{nextTask.tip}</p>
+          )}
+
+          {nextTask.goal && (
+            <p className="mt-3 text-sm text-[#9AA7B8]"><strong>🎯 Objetivo: </strong> {nextTask.goal}</p>
           )}
 
           {/* TIMER */}

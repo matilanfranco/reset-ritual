@@ -18,7 +18,10 @@ export type Task = {
   slot: Slot;
 
   title: string;
+  description?: string;
+  goal?: string;
   tip?: string;
+  img?: string;
 
   type: TaskType;
   durationSec?: number; // solo si type === "timer"
