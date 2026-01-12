@@ -5,10 +5,53 @@ export type RoutineCategory = Category & {
 };
 
 export const ROUTINE: RoutineCategory[] = [
+
+  {
+      id: "questions",
+      title: "Preguntas al despertar",
+      order: 1,
+      img: "questions-after-waking-up.png",
+      tasks: [
+
+      {
+         id: "m_question-jaw",
+         categoryId: "questions",
+         slot: "morning",
+         title: "¿Cómo despertó tu mandíbula hoy?",
+         tip: "rankea según como la sientes: desde muy tensa/dolorida a muy relajada/sin dolor.",
+         type: "reflection",        
+         order: 1,
+         enabled: true,
+      },
+      {
+         id: "m_question-rest",
+         categoryId: "questions",
+         slot: "morning",
+         title: "¿Cómo dormiste anoche?",
+         tip: "rankea y describe a continuación.",
+         type: "reflection",        
+         order: 2,
+         enabled: true,
+      },
+      {
+         id: "m_question-rest-time",
+         categoryId: "questions",
+         slot: "morning",
+         title: "Cuentanos más sobre cómo dormiste.",
+         tip: "responde las siguientes preguntas.",
+         type: "sleep-duration",        
+         order: 3,
+         enabled: true,
+      },
+
+      ],
+    
+  },
+
   {
     id: "massage",
     title: "Masajes ATM",
-    order: 1,
+    order: 2,
     img: "massage.png",
     tasks: [
       // 🌅 MORNING
@@ -150,7 +193,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
     id: "facial-exercises",
     title: "Ejercicios Faciales",
-    order: 2,
+    order: 3,
     img: "facial-exercises.png",
     tasks: [
         {
@@ -255,7 +298,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
     id: "facial-massages",
     title: "Masajes faciales",
-    order: 3,
+    order: 4,
     img: "facial-massage.png",
     tasks: [
       {
@@ -329,7 +372,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
     id: "breath",
     title: "Respiración",
-    order: 4,
+    order: 5,
     img: "breath.png",
     tasks: [
       // 🌅 MORNING
@@ -365,7 +408,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
     id: "heat",
     title: "Calor",
-    order: 5,
+    order: 6,
     optional: true,
     img: "heat.png",
     tasks: [
@@ -388,7 +431,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
     id: "checks",
     title: "Chequeos",
-    order: 6,
+    order: 7,
     img: "checks.png",
     tasks: [
       // 🌅 MORNING
@@ -448,7 +491,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
     id: "night-checks",
     title: "Chequeos Nocturnos",
-    order: 7,
+    order: 8,
     img: "nightchecks.png",
     tasks: [
       {
@@ -476,7 +519,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
   id: "alcohol",
   title: "Alcohol",
-  order: 8,
+  order: 9,
   img: "alcohol.png",
   tasks: [
     {
@@ -497,7 +540,7 @@ export const ROUTINE: RoutineCategory[] = [
   {
   id: "meditation",
   title: "Meditación",
-  order: 9,
+  order: 10,
   img: "meditation.png",
   tasks: [
     {

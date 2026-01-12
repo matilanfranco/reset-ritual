@@ -75,6 +75,7 @@ export function ensureTodayDayLog(): DayLog {
         completedTaskIds: [],
         activeTimer: null,
         formAnswers: {},
+        reflectionAnswers: {},
         createdAt: Date.now(),
         updatedAt: Date.now(),
     };
@@ -91,6 +92,7 @@ export function ensureTodayDayLog(): DayLog {
         completedTaskIds: [],
         activeTimer: null,
         formAnswers: {},
+        reflectionAnswers: {},
         createdAt: Date.now(),
         updatedAt: Date.now(),
         };

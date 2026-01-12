@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAudioStore } from "@/lib/audioStore";
 import { useSearchParams } from "next/navigation";
@@ -32,7 +32,7 @@ function playSoftSound(pitch: number) {
   osc.frequency.value = pitch; // grave suave
 
   const gain = ctx.createGain();
-  gain.gain.value = 0.04; // bajito
+  gain.gain.value = 0.06; // bajito
 
   osc.connect(gain);
   gain.connect(ctx.destination);
@@ -58,9 +58,20 @@ export default function FocusPage() {
 
   // reloj para refrescar UI del timer
   const [clock, setClock] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
 
+
+  // Form de cuanto alcohol tomaste
   const [alcoholDrank, setAlcoholDrank] = useState<null | boolean>(null);
   const [alcoholDrinks, setAlcoholDrinks] = useState<number>(0);  
+
+  // Ranking de reflections
+  const [rank, setRank] = useState<number | null>(null);
+  const [note, setNote] = useState<string>("");
+
+  // Form de la cantidad de horas dormidas.
+  const [sleepHours, setSleepHours] = useState(6);
+  const [sleepTime, setSleepTime] = useState<string>("");
 
   // buscar categoría
   const category = ROUTINE.find((c) => c.id === categoryId) || null;
@@ -119,6 +130,13 @@ export default function FocusPage() {
     saveTodayLog(updated);
   }
 
+  // Mostrar el numero de horas como hora
+  function formatHours(value: number) {
+    const hours = Math.floor(value);
+    const minutes = Math.round((value - hours) * 60);
+    return `${hours} h ${minutes.toString().padStart(2, "0")} min`;
+  }
+
     function markDone(task: Task, withSound: boolean) {
     if (withSound) playSoftSound(300);
 
@@ -153,6 +171,57 @@ export default function FocusPage() {
 
         save(updated);
         playSoftSound(300);
+        }
+
+       function saveReflection() {
+          if (!nextTask) return;
+          if (rank === null) return;
+
+          const cleanNote = (note ?? "").trim();
+
+          const updated: DayLog = {
+            ...currentDayLog,
+            reflectionAnswers: {
+              ...(currentDayLog.reflectionAnswers ?? {}),
+              [nextTask.id]: {
+                rank,
+                note: cleanNote,
+              },
+            },
+            completedTaskIds: Array.from(
+              new Set([...currentDayLog.completedTaskIds, nextTask.id])
+            ),
+            activeTimer: null,
+          };
+
+          save(updated);
+          playSoftSound(300);
+          setRank(null);
+          setNote('')
+        }
+
+        function saveSleepInfo() {
+          if (!nextTask) return;
+
+          const updated: DayLog = {
+            ...currentDayLog,
+            reflectionAnswers: {
+              ...(currentDayLog.reflectionAnswers ?? {}),
+              [nextTask.id]: {
+                sleepHours: sleepHours,
+                sleepTime: sleepTime,
+              },
+            },
+            completedTaskIds: Array.from(
+              new Set([...currentDayLog.completedTaskIds, nextTask.id])
+            ),
+            activeTimer: null,
+          };
+
+          save(updated);
+          playSoftSound(300);
+          setSleepHours(6);
+          setSleepTime('')
         }
 
   function startTimer(task: Task) {
@@ -284,61 +353,61 @@ export default function FocusPage() {
           {/* TIMER */}
           {nextTask.type === "timer" ? (
   // TIMER
-  <div className="mt-10">
-    <div className="rounded-3xl bg-[#111824] border border-white/5 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-xs text-[#9AA7B8]">Tiempo</div>
-        <div className="text-lg font-semibold">{formatMMSS(remainingSec)}</div>
-      </div>
+            <div className="mt-10">
+              <div className="rounded-3xl bg-[#111824] border border-white/5 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-xs text-[#9AA7B8]">Tiempo</div>
+                  <div className="text-lg font-semibold">{formatMMSS(remainingSec)}</div>
+                </div>
 
-      <div className="h-2 rounded-full bg-black/30 overflow-hidden">
-        <div
-          className="h-full rounded-full bg-[#4DD6C5]/80 transition-[width]"
-          style={{
-            width: `${Math.max(0, Math.min(1, progress)) * 100}%`,
-          }}
-        />
-      </div>
+                <div className="h-2 rounded-full bg-black/30 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-[#4DD6C5]/80 transition-[width]"
+                    style={{
+                      width: `${Math.max(0, Math.min(1, progress)) * 100}%`,
+                    }}
+                  />
+                </div>
 
-      <div className="mt-6 flex gap-3">
-        {!isActiveTimer ? (
-          <button
-            className="flex-1 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
-            onClick={() => startTimer(nextTask)}
-          >
-            Start
-          </button>
-        ) : (
-          <button
-            className="flex-1 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
-            onClick={stopTimer}
-          >
-            Stop
-          </button>
-        )}
+                <div className="mt-6 flex gap-3">
+                  {!isActiveTimer ? (
+                    <button
+                      className="flex-1 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
+                      onClick={() => startTimer(nextTask)}
+                    >
+                      Start
+                    </button>
+                  ) : (
+                    <button
+                      className="flex-1 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
+                      onClick={stopTimer}
+                    >
+                      Stop
+                    </button>
+                  )}
 
-        <button
-          className="rounded-2xl border border-white/10 px-5 py-3 font-semibold"
-          onClick={() => markDone(nextTask, true)}
-          title="Si ya lo hiciste o querés saltear"
-        >
-          Done
-        </button>
-      </div>
+                  <button
+                    className="rounded-2xl border border-white/10 px-5 py-3 font-semibold"
+                    onClick={() => markDone(nextTask, true)}
+                    title="Si ya lo hiciste o querés saltear"
+                  >
+                    Done
+                  </button>
+                </div>
 
-      <div className="flex justify-center">
-        <button
-          className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
-          onClick={() => {
-            router.push("/block/" + slot);
-            stopAudio();
-          }}
-        >
-          Volver al Bloque
-        </button>
-      </div>
-    </div>
-  </div>
+                <div className="flex justify-center">
+                  <button
+                    className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
+                    onClick={() => {
+                      router.push("/block/" + slot);
+                      stopAudio();
+                    }}
+                  >
+                    Volver al Bloque
+                  </button>
+                </div>
+              </div>
+            </div>
             ) : nextTask.type === "check" ? (
             // CHECK
             <div className="mt-10">
@@ -349,7 +418,7 @@ export default function FocusPage() {
                 Done
                 </button>
             </div>
-            ) : (
+            ) :  nextTask.type === "form" ? (
             // FORM (ALCOHOL)
             <div className="mt-10">
                 <div className="rounded-3xl bg-[#111824] border border-white/5 p-6">
@@ -425,7 +494,143 @@ export default function FocusPage() {
                 </button>
                 </div>
             </div>
-            )}
+            ) :  nextTask.type === "sleep-duration" ? (
+            // Sleep duration
+            <div className="mt-6">
+                <div className="rounded-3xl bg-[#111824] border border-white/5 p-6">
+                  <p className="block mb-2 text-sm text-[#9AA7B8]">
+                      ¿Cuántas horas dormiste anoche?
+                    </p>
+                  <h2 className="text-l text- text-center text-[#d7d7d7]">
+                   <strong> {formatHours(sleepHours)}</strong>
+                  </h2>
+                  <div className="mt-2 flex gap-3 mb-6">
+                      <input
+                          type="range"
+                          min={0}
+                          max={12}
+                          step={0.25} // 15 minutos
+                          value={(sleepHours)}
+                          onChange={(e) => setSleepHours(Number(e.target.value))}
+                          className="w-full"
+                        />
+                  </div>
+                  <div className="mt-4">
+                    <label className="block mb-2 text-sm text-[#9AA7B8]">
+                      ¿A qué hora te dormiste? Elige un rango aproximado.
+                    </label>
+
+                    <select
+                      className="
+                        w-full rounded-xl bg-[#0B0F14] border border-[#1F2937]
+                        px-4 py-3 text-sm text-[#E6EDF7]
+                        focus:border-[#3B82F6] focus:outline-none
+                      "
+                      value={sleepTime}
+                      onChange={(e) => setSleepTime(String(e.target.value))}
+                    >
+                      <option value="" disabled>
+                        Seleccionar horario
+                      </option>
+                      <option value="before_23">Antes de las 23</option>
+                      <option value="23_00">23 – 00</option>
+                      <option value="00_01">00 – 01</option>
+                      <option value="01_02">01 – 02</option>
+                      <option value="02_03">02 – 03</option>
+                      <option value="03_04">03 – 04</option>
+                      <option value="after_04">Después de las 4</option>
+                    </select>
+                  </div>
+
+                  <div className="flex justify-between">
+                  <button
+                    className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={saveSleepInfo}
+                    
+                  >
+                    Guardar
+                  </button>
+
+                  <button
+                    className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
+                    onClick={() => {
+                      router.push("/block/" + slot);
+                      setSleepHours(6);
+                      stopAudio();
+                    }}
+                  >
+                    Volver al Bloque
+                  </button>
+                </div>
+                </div>
+            </div>
+            ) : (
+             <div className="mt-6 p-4 rounded-xl bg-[#111827] text-[#E6EDF7] space-y-4">
+                <div className="flex gap-2 justify-between">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setRank(n)}
+                      className={`flex-1 py-2 rounded-lg text-m transition
+                        ${
+                          rank === n && n === 1
+                            ? "bg-[#ff5757] text-white"
+                            : 
+                          rank === n && n === 2
+                            ? "bg-[#ffa340] text-white"
+                            : 
+                          rank === n && n === 3
+                            ? "bg-[#fff262] text-white"
+                            : 
+                          rank === n && n === 4
+                            ? "bg-[#5faaff] text-white"
+                            : 
+                          rank === n && n === 5
+                            ? "bg-[#6eff6e] text-white"
+                            : 
+                          
+                          "bg-[#1F2937] text-[#9AA7B8] hover:bg-[#374151]"
+                        }
+                      `}
+                    >
+                      {n === 1 ? "😖" : n === 2 ? "😣" : n === 3 ? "😐" : n === 4 ? "🙂" : "😌"}
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  type="text"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Agrega una descripción (opcional)"
+                  className="w-full rounded-lg bg-[#0B0F14] border border-[#1F2937] px-3 py-2 text-sm outline-none focus:border-[#3B82F6]"
+                />
+
+                <div className="flex justify-between">
+                  <button
+                    className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={saveReflection}
+                    disabled={rank === null}
+                    
+                  >
+                    Guardar
+                  </button>
+
+                  <button
+                    className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
+                    onClick={() => {
+                      router.push("/block/" + slot);
+                      setRank(null);
+                      setNote('')
+                      stopAudio();
+                    }}
+                  >
+                    Volver al Bloque
+                  </button>
+                </div>
+              </div>
+
+            ) }
         </div>
 
         {/* Footer */}

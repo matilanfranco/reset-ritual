@@ -10,7 +10,7 @@ export type Category = {
   img?: string; // 👈 clave
 };
 
-export type TaskType = "timer" | "check" | "form";
+export type TaskType = "timer" | "check" | "form" | "reflection" | "sleep-duration";
 
 export type Task = {
   id: string;
@@ -46,6 +46,7 @@ export type DayLog = {
 
   // respuestas de forms (por taskId)
   formAnswers?: Record<string, unknown>;
+  reflectionAnswers?: Record<string, unknown>;
 
   createdAt: number;
   updatedAt: number;
