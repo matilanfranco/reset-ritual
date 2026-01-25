@@ -535,7 +535,7 @@ export const ROUTINE: RoutineCategory[] = [
       enabled: true,
     },
   ],
-},
+  },
 
   {
   id: "meditation",
@@ -557,5 +557,28 @@ export const ROUTINE: RoutineCategory[] = [
       enabled: true,
     },
   ],
-},
+  },
+
+  {
+    id: "suplements",
+    title: "Suplementos",
+    order: 11,
+    img: "meditation.png",
+    tasks: [
+      {
+        id: "supl_checklist",
+        categoryId: "suplements",
+        slot: "day",
+        title: "Checklist de suplementos 🌿",
+        description: "Estos suplementos ayudan a bajar la tensión, reducir la inflamación y mejorar la función muscular y nerviosa, apoyando la relajación de la mandíbula y disminuyendo el bruxismo.",
+        tip: "agregar los suplementos tomados para llevar un seguimiento simple y ordenado. Esto te va a ayudar a mantener constancia, evitar olvidos y ver cómo cada uno impacta en tu relajación, energía y reducción del bruxismo.",
+        type: "checkbox-group",
+        boxes: ["Vitamina C 🍊 - 500–1000 mg", "Vitamina D 🌞 - 1000–2000 UI", "Magnesio 💤 - 300–400 mg", "Omega 3 🧠 - 1000–1500 mg", "Zinc 🔋 - 15–30 mg", "Colágeno 🦴 - 10 g"],
+        order: 1,
+        enabled: true,
+      },
+    ],
+  }
+
+  
 ];

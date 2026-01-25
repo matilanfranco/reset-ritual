@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ensureTodayDayLog } from "@/lib/daylog";
 import Image from "next/image";
+import { motion } from "framer-motion";
+
 
 import { ROUTINE } from "@/data/routine";
 import type { DayLog, Slot } from "@/lib/types";
@@ -34,7 +36,12 @@ export default function Page() {
   const slots: Slot[] = ["morning", "day", "night"]; 
 
   return (
-    <main className="min-h-screen px-5 py-6">
+      <motion.main
+      initial={{ scale: 0.97, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.98, opacity: 0 }}
+      className="min-h-screen px-5 py-6"
+    >
       <div className="max-w-md mx-auto">
         <h1 className="text-2xl font-semibold tracking-tight">Reset Ritual</h1>
         <p className="text-sm text-[#9AA7B8] mt-1">
@@ -100,6 +107,6 @@ export default function Page() {
           })}
         </div>
       </div>
-    </main>
+    </motion.main>
   );
 }

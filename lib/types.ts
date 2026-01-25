@@ -10,7 +10,7 @@ export type Category = {
   img?: string; // 👈 clave
 };
 
-export type TaskType = "timer" | "check" | "form" | "reflection" | "sleep-duration";
+export type TaskType = "timer" | "check" | "form" | "reflection" | "sleep-duration" | "checkbox-group";
 
 export type Task = {
   id: string;
@@ -25,6 +25,8 @@ export type Task = {
 
   type: TaskType;
   durationSec?: number; // solo si type === "timer"
+
+  boxes?: string[];
 
   // solo si type === "form"
   formKind?: "alcohol";

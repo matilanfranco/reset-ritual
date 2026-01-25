@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAudioStore } from "@/lib/audioStore";
 import { useSearchParams } from "next/navigation";
@@ -23,23 +23,6 @@ function formatMMSS(seconds: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-// Sonido simple (sin ramps, sin compatibilidad vieja)
-function playSoftSound(pitch: number) {
-  const ctx = new AudioContext();
-
-  const osc = ctx.createOscillator();
-  osc.type = "sine";
-  osc.frequency.value = pitch; // grave suave
-
-  const gain = ctx.createGain();
-  gain.gain.value = 0.06; // bajito
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start();
-  osc.stop(ctx.currentTime + 0.25); // duración
-}
 
 /* ===== componente ===== */
 
@@ -73,8 +56,50 @@ export default function FocusPage() {
   const [sleepHours, setSleepHours] = useState(6);
   const [sleepTime, setSleepTime] = useState<string>("");
 
+  //Array de checkboxes
+
+  const [arrayVitamins, setArrayVitamins] = useState<string[]>(['Vitamina C'])
+
   // buscar categoría
   const category = ROUTINE.find((c) => c.id === categoryId) || null;
+
+
+  // sonido
+  const beepCtxRef = useRef<AudioContext | null>(null);
+
+  function playSoftSound(pitch: number) {
+    let ctx = beepCtxRef.current;
+    if (!ctx) {
+      ctx = new AudioContext();
+      beepCtxRef.current = ctx;
+    }
+    if (ctx.state === "suspended") {
+      ctx.resume();
+    }
+
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.value = pitch;
+
+    const gain = ctx.createGain();
+    gain.gain.value = 0.06;
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.25);
+  }
+
+  // Cleanup cuando salís del Focus
+  useEffect(() => {
+    return () => {
+      if (beepCtxRef.current) {
+        beepCtxRef.current.close();
+        beepCtxRef.current = null;
+      }
+    };
+  }, []);
 
   // tareas de esta categoría
   const tasks =
@@ -254,11 +279,10 @@ export default function FocusPage() {
   if (nextTask && dayLog.activeTimer?.taskId === nextTask.id) {
     const remainingMs = dayLog.activeTimer.endsAt - nowMs();
     if (remainingMs <= 0) {
+      playSoftSound(300); // suena al terminar
       try {
         navigator.vibrate?.([120, 60, 120]);
       } catch {}
-
-      playSoftSound(300); // suena al terminar
 
       // marcar done SIN sonido extra (ya sonó)
       markDone(nextTask, false);
@@ -564,7 +588,7 @@ export default function FocusPage() {
                 </div>
                 </div>
             </div>
-            ) : (
+            ) : nextTask.type === "reflection" ? (
              <div className="mt-6 p-4 rounded-xl bg-[#111827] text-[#E6EDF7] space-y-4">
                 <div className="flex gap-2 justify-between">
                   {[1, 2, 3, 4, 5].map((n) => (
@@ -630,8 +654,60 @@ export default function FocusPage() {
                 </div>
               </div>
 
-            ) }
-        </div>
+            ) : (
+             <div className="mt-6 p-4 rounded-xl bg-[#111827] text-[#E6EDF7] space-y-4">
+                {nextTask.boxes?.map((boxName) => (
+                    <label
+                      key={boxName}
+                      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#111824] px-3 py-2"
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-5 w-5 accent-[#4DD6C5]"
+                        checked={arrayVitamins.includes(boxName)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            // agregar al array
+                            setArrayVitamins((prev) => [...prev, boxName]);
+                          } else {
+                            // sacar del array
+                            setArrayVitamins((prev) =>
+                              prev.filter((item) => item !== boxName)
+                            );
+                          }
+                        }}
+                      />
+
+                      <span className="text-sm font-semibold">{boxName}</span>
+                    </label>
+                  ))}    
+                  <div className="flex justify-between">
+                  <button
+                    className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={saveReflection}
+                    disabled={rank === null}
+                    
+                  >
+                    Guardar
+                  </button>
+
+                  <button
+                    className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold"
+                    onClick={() => {
+                      router.push("/block/" + slot);
+                      setRank(null);
+                      setNote('')
+                      stopAudio();
+                    }}
+                  >
+                    Volver al Bloque
+                  </button>
+                </div>  
+            </div>
+                  
+
+                )}
+            </div>
 
         {/* Footer */}
         <div className="pb-2 text-center text-xs text-[#9AA7B8]">

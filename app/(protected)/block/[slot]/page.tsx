@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import Image from "next/image";
 
 import { ROUTINE } from "@/data/routine";
@@ -35,6 +36,7 @@ export default function BlockPage() {
   const slot: Slot = isSlot(slotParam) ? slotParam : "morning";
 
   const [dayLog, setDayLog] = useState<DayLog | null>(null);
+  const [leaving, setLeaving] = useState(false);
 
   const startRandomTrack = useAudioStore((s) => s.startRandomTrack);
 
@@ -56,7 +58,12 @@ export default function BlockPage() {
     .sort((a, b) => a.cat.order - b.cat.order);
 
   return (
-    <main className="min-h-screen px-5 py-6">
+    <motion.main
+      initial={{ scale: 0.97, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.98, opacity: 0 }}
+      className="min-h-screen px-5 py-6"
+    >
       <div className="mx-auto max-w-md">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -136,6 +143,6 @@ export default function BlockPage() {
           Volver al Dashboard
         </button>
       </div>
-    </main>
+    </motion.main>
   );
 }
