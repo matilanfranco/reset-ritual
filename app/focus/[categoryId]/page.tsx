@@ -5,11 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { useAudioStore } from "@/lib/audioStore";
 import { useSearchParams } from "next/navigation";
 import type { Slot } from "@/lib/types";
+import { saveDayLogToDb } from "@/lib/daylogDb";
 
 import { ROUTINE } from "@/data/routine";
 import { ensureTodayDayLog, saveTodayLog } from "@/lib/daylog";
 import type { CategoryId, DayLog, Task } from "@/lib/types";
 import AudioBar from "@/components/AudioBar";
+import { div } from "framer-motion/client";
 
 /* ===== helpers simples ===== */
 
@@ -58,7 +60,8 @@ export default function FocusPage() {
 
   //Array de checkboxes
 
-  const [arrayVitamins, setArrayVitamins] = useState<string[]>(['Vitamina C'])
+  const [arrayChecklist, setArrayChecklist] = useState<string[]>([])
+  const [savedChecklistMessage, setSavedChecklistMessage] = useState(false)
 
   // buscar categoría
   const category = ROUTINE.find((c) => c.id === categoryId) || null;
@@ -124,6 +127,9 @@ export default function FocusPage() {
     if (typeof saved.drank === "boolean") setAlcoholDrank(saved.drank);
     if (typeof saved.drinks === "number") setAlcoholDrinks(saved.drinks);
   }
+
+  const savedChecklist = (dayLog.checklistAnswers as any)?.supl_checklist;
+  setArrayChecklist(Array.isArray(savedChecklist) ? savedChecklist : []);
 }, [dayLog]);
 
   // refrescar UI cada 250ms (para ver el timer bajar)
@@ -144,16 +150,14 @@ export default function FocusPage() {
     );
   }
 
-  // próxima tarea pendiente
-  const nextTask =
-    tasks.find((t) => !dayLog.completedTaskIds.includes(t.id)) || null;
 
   // guardar log (estado + localStorage)
   function save(updated: DayLog) {
-    updated.updatedAt = nowMs();
-    setDayLog(updated);
-    saveTodayLog(updated);
-  }
+  updated.updatedAt = nowMs();
+  setDayLog(updated);
+  saveTodayLog(updated);     // cache
+  saveDayLogToDb(updated);   // verdad
+}
 
   // Mostrar el numero de horas como hora
   function formatHours(value: number) {
@@ -175,6 +179,35 @@ export default function FocusPage() {
 
     save(updated);
     }
+
+    function saveChecklist() {
+    if (!nextTask) return;
+
+    const isComplete =
+      arrayChecklist.length === (nextTask.boxes?.length ?? 0); // lo segundo quiere decir que si es null o undefinied, que devuelva 0 ese valor
+
+    const updated: DayLog = {
+      ...currentDayLog,
+      checklistAnswers: {
+        ...(currentDayLog.checklistAnswers ?? {}),
+        [nextTask.id]: [...arrayChecklist],
+      },
+      completedTaskIds: isComplete
+        ? Array.from(
+            new Set([...currentDayLog.completedTaskIds, nextTask.id])
+          )
+        : currentDayLog.completedTaskIds, // no la marcás como completa
+    };
+
+    setSavedChecklistMessage(true)
+
+    save(updated);
+    playSoftSound(300);
+  }
+
+  // próxima tarea pendiente
+  const nextTask =
+    tasks.find((t) => !dayLog.completedTaskIds.includes(t.id)) || null;
 
     function saveAlcoholForm() {
         if (!nextTask) return;
@@ -224,6 +257,8 @@ export default function FocusPage() {
           setRank(null);
           setNote('')
         }
+
+      
 
         function saveSleepInfo() {
           if (!nextTask) return;
@@ -307,6 +342,7 @@ export default function FocusPage() {
           onClick={() => {
               router.push("/block/" + slot);
               stopAudio()
+              
            }}
 
           >
@@ -664,14 +700,14 @@ export default function FocusPage() {
                       <input
                         type="checkbox"
                         className="h-5 w-5 accent-[#4DD6C5]"
-                        checked={arrayVitamins.includes(boxName)}
+                        checked={arrayChecklist.includes(boxName)}
                         onChange={(e) => {
                           if (e.target.checked) {
                             // agregar al array
-                            setArrayVitamins((prev) => [...prev, boxName]);
+                            setArrayChecklist((prev) => [...prev, boxName]);
                           } else {
                             // sacar del array
-                            setArrayVitamins((prev) =>
+                            setArrayChecklist((prev) =>
                               prev.filter((item) => item !== boxName)
                             );
                           }
@@ -684,8 +720,8 @@ export default function FocusPage() {
                   <div className="flex justify-between">
                   <button
                     className="mt-5 rounded-2xl bg-[#162033] border border-white/10 px-5 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={saveReflection}
-                    disabled={rank === null}
+                    onClick={saveChecklist}
+                    disabled={arrayChecklist.length < 1}
                     
                   >
                     Guardar
@@ -703,6 +739,12 @@ export default function FocusPage() {
                     Volver al Bloque
                   </button>
                 </div>  
+                {savedChecklistMessage && (
+                  <div className="mt-2 flex items-center gap-2 rounded-xl bg-[#0f3d2e] border border-[#1b5e41] px-3 py-2 text-sm text-[#7CFFC4] font-semibold">
+                  <span className="text-lg">✔️</span>
+                  <span>Guardado - Volvé al Dashboard</span>
+                </div>
+                )}
             </div>
                   
 
@@ -710,9 +752,9 @@ export default function FocusPage() {
             </div>
 
         {/* Footer */}
-        <div className="pb-2 text-center text-xs text-[#9AA7B8]">
+        {/* <div className="pb-2 text-center text-xs text-[#9AA7B8]">
           Baja luz · un paso a la vez · foco total
-        </div>
+        </div> */}
       </div>
     </main>
   );

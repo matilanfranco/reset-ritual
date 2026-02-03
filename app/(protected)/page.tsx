@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ensureTodayDayLog } from "@/lib/daylog";
+import { ensureTodayDayLog, saveTodayLog } from "@/lib/daylog";
+import { loadOrCreateDayLog } from "@/lib/daylogDb";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -27,9 +28,20 @@ export default function Page() {
   const [dayLog, setDayLog] = useState<DayLog | null>(null);
 
   useEffect(() => {
-    const log = ensureTodayDayLog();
-    setDayLog(log);
-  }, []);
+  // 1) rápido: cache
+  const local = ensureTodayDayLog();
+  setDayLog(local);
+
+  // 2) verdad: DB
+  (async () => {
+    const dbLog = await loadOrCreateDayLog(local.dayKey);
+    if (dbLog) {
+      setDayLog(dbLog);
+      // y también podrías guardar en localStorage si querés
+      saveTodayLog(dbLog);
+    }
+  })();
+}, []);
 
   if (!dayLog) return null;
 

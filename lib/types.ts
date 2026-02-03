@@ -49,6 +49,7 @@ export type DayLog = {
   // respuestas de forms (por taskId)
   formAnswers?: Record<string, unknown>;
   reflectionAnswers?: Record<string, unknown>;
+  checklistAnswers?: Record<string, unknown>;
 
   createdAt: number;
   updatedAt: number;
