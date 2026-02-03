@@ -59,6 +59,42 @@ function ratingToWord(v: any) {
   return String(v);
 }
 
+function sleepTimeToPhrase(v: any) {
+  if (v == null || v === "") return "Sin información";
+  if (v === "00_01") return "Entre las 12 y la 1 de la mañana"
+  if (v === "01_02") return "Entre la 1 y las 2 de la mañana";
+  if (v === "02_03") return "Entre las 2 y las 3 de la mañana";
+  if (v === "03_04") return "Entre las 3 y las 4 de la mañana";
+  if (v === "after_04") return "Despues de las 4 de la mañana";
+    return String(v);
+}
+
+function getTime(v: any) {
+  if (typeof v === "number") {
+    const hour = Math.floor(v);
+    const decimal = v % 1; 
+    let minutes = 0;
+    if(decimal === 0) {
+      minutes = 0
+    }
+    if(decimal === 0.25) {
+      minutes = 15
+    }
+    if(decimal === 0.50) {
+      minutes = 30
+    }
+    if (decimal === 0.75) {
+      minutes = 45
+    }
+    const finalTime = hour + ":" + minutes;
+
+    return finalTime;
+  }else{
+    return "Sin informacion"
+  }
+}
+
+
 // function renderKeyValueList(obj: any) {
 //   if (!obj || typeof obj !== "object" || Object.keys(obj).length === 0) {
 //     return <div className="text-xs text-[#9AA7B8]">No hay información.</div>;
@@ -378,13 +414,13 @@ export default function HistoryPage() {
                                   Horas dormidas?
                                 </div>
                                 <div className="mb-2 mt-1 text-xs text-[#E6EDF7] whitespace-pre-wrap">
-                                  {reflections?.m_questionRestTime.sleepHours}
+                                  {getTime(reflections?.m_questionRestTime.sleepHours)}
                                 </div>
                                 <div className="text-[10px] tracking-wider text-[#9AA7B8]">
                                   Rango horario en el que te fuiste a dormir?
                                 </div>
                                 <div className="mb-2 mt-1 text-xs text-[#E6EDF7] whitespace-pre-wrap">
-                                  {reflections?.m_questionRestTime.sleepTime}
+                                  {sleepTimeToPhrase(reflections?.m_questionRestTime.sleepTime)}
                                 </div>
                               </div>
                               <div
@@ -416,7 +452,7 @@ export default function HistoryPage() {
                                 {vitaminsNotTaken.length === 0 
                                   ?  <div className="mb-2 mt-1 text-xs text-[#E6EDF7] whitespace-pre-wrap">
                                         No hay ninguna en la lista.
-                                      </div>
+                                     </div>
                                   : (
                                   <ul className="mb-2 mt-1 text-xs text-[#E6EDF7] whitespace-pre-wrap">
                                   {vitaminsNotTaken.map((item, i) => (
