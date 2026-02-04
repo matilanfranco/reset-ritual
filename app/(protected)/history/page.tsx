@@ -430,9 +430,9 @@ export default function HistoryPage() {
                                   🍷 Consumiste alcohol?
                                 </div>
                                 <div className="mb-2 mt-1 text-xs text-[#E6EDF7] whitespace-pre-wrap">
-                                  {forms?.n_alcohol_check.drank ? 'Si' : 'No'}
+                                  {forms?.n_alcohol_check?.drank ? 'Si' : 'No'}
                                 </div>
-                                {forms?.n_alcohol_check.drank && (
+                                {forms?.n_alcohol_check?.drank && (
                                   <>
                                     <div className="text-[10px] tracking-wider text-[#9AA7B8]">
                                       Cuantas copas?
