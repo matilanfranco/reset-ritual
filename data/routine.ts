@@ -107,20 +107,6 @@ export const ROUTINE: RoutineCategory[] = [
         order: 4,
         enabled: true,
       },
-
-      // ☀️ DAY
-      {
-        id: "d_massage_neck_90",
-        categoryId: "massage",
-        slot: "day",
-        title: "Cuello suave (90s)",
-        type: "timer",
-        durationSec: 90,
-        tip: "Sin estirar fuerte. Solo aflojar.",
-        order: 1,
-        enabled: true,
-      },
-
       // 🌙 NIGHT
       {
         id: "n_massage_temples",
@@ -387,20 +373,6 @@ export const ROUTINE: RoutineCategory[] = [
         tip: "colocar la punta de la lengua contra el paladar, justo detrás de los dientes superiores, y mantener los dientes inferiores y superiores ligeramente separados (sin contacto). Respirar por la nariz en esa posición relajada.",
         order: 1,
         enabled: true,
-      },
-
-      // ☀️ DAY
-      {
-        id: "d_breath_46",
-        categoryId: "breath",
-        slot: "day",
-        title: "Respiración nasal (in 4 / out 6)",
-        type: "timer",
-        durationSec: 120,
-        goal: "reeduca la posición natural de la mandíbula y alivia la presión constante sobre la articulación.",
-        tip: "colocar la punta de la lengua contra el paladar, justo detrás de los dientes superiores, y mantener los dientes inferiores y superiores ligeramente separados (sin contacto). Respirar por la nariz en esa posición relajada.",
-        order: 1,
-        enabled: true,
       }
     ],
   },
@@ -457,16 +429,6 @@ export const ROUTINE: RoutineCategory[] = [
 
       // ☀️ DAY
       {
-        id: "d_check_jaw_reset",
-        categoryId: "checks",
-        slot: "day",
-        title: "Jaw reset (10s)",
-        type: "check",
-        tip: "Labios juntos, dientes separados, lengua suave. Soltá hombros.",
-        order: 1,
-        enabled: true,
-      },
-      {
         id: "d_check_eyes",
         categoryId: "checks",
         slot: "day",
@@ -480,7 +442,7 @@ export const ROUTINE: RoutineCategory[] = [
         id: "d_check_water",
         categoryId: "checks",
         slot: "day",
-        title: "Hidratación",
+        title: "Tomar agua (1 vaso)",
         type: "check",
         order: 3,
         enabled: true,
