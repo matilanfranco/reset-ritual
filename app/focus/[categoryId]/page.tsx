@@ -6,6 +6,7 @@ import { useAudioStore } from "@/lib/audioStore";
 import { useSearchParams } from "next/navigation";
 import type { Slot } from "@/lib/types";
 import { saveDayLogToDb } from "@/lib/daylogDb";
+import MirrorCam from "@/components/MirrorCam";
 
 import { ROUTINE } from "@/data/routine";
 import { ensureTodayDayLog, saveTodayLog } from "@/lib/daylog";
@@ -410,6 +411,12 @@ export default function FocusPage() {
             <p className="mt-3 text-sm text-[#9AA7B8]"><strong>🎯 Objetivo: </strong> {nextTask.goal}</p>
           )}
 
+          {nextTask.type === "timer" && (
+            <div className="w-full max-w-none mt-5">
+              <MirrorCam />
+            </div>
+          )}
+
           {/* TIMER */}
           {nextTask.type === "timer" ? (
   // TIMER
@@ -419,7 +426,6 @@ export default function FocusPage() {
                   <div className="text-xs text-[#9AA7B8]">Tiempo</div>
                   <div className="text-lg font-semibold">{formatMMSS(remainingSec)}</div>
                 </div>
-
                 <div className="h-2 rounded-full bg-black/30 overflow-hidden">
                   <div
                     className="h-full rounded-full bg-[#4DD6C5]/80 transition-[width]"
